@@ -1,0 +1,146 @@
+
+CREATE DATABASE ChurnScopeDB;
+GO
+USE ChurnScopeDB;
+GO
+
+CREATE TABLE Customers (
+    CustomerID INT PRIMARY KEY,
+    CustomerName VARCHAR(100),
+    Country VARCHAR(50),
+    SignupDate DATE,
+    ContractType VARCHAR(20),
+    MonthlyCharges DECIMAL(10,2),
+    ChurnStatus VARCHAR(10)
+);
+
+CREATE TABLE Transactions (
+    TransactionID INT PRIMARY KEY,
+    CustomerID INT,
+    TransactionDate DATE,
+    Amount DECIMAL(10,2),
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
+);
+
+INSERT INTO Customers VALUES
+(1,'Arun','India','2025-01-10','Monthly',1200,'Churned'),
+(2,'Meera','India','2025-02-15','Annual',900,'Active'),
+(3,'John','USA','2025-03-20','Monthly',1500,'Active'),
+(4,'Sara','UK','2025-04-05','Annual',1100,'Churned'),
+(5,'David','USA','2025-05-12','Monthly',1800,'Active'),
+(6,'Anu','India','2025-06-18','Annual',800,'Active'),
+(7,'Ravi','India','2025-07-22','Monthly',1300,'Churned'),
+(8,'Emma','UK','2025-08-09','Annual',1000,'Active'),
+(9,'Noah','USA','2025-09-14','Monthly',1600,'Active'),
+(10,'Diya','India','2025-10-01','Annual',950,'Churned');
+
+INSERT INTO Transactions VALUES
+(101,1,'2025-01-15',2400),
+(102,1,'2025-02-15',1200),
+(103,2,'2025-02-20',900),
+(104,2,'2025-03-20',1800),
+(105,3,'2025-03-25',3000),
+(106,3,'2025-04-25',1500),
+(107,4,'2025-04-10',1100),
+(108,5,'2025-05-20',3600),
+(109,5,'2025-06-20',1800),
+(110,6,'2025-06-25',800),
+(111,7,'2025-07-25',2600),
+(112,8,'2025-08-15',1000),
+(113,9,'2025-09-20',3200),
+(114,10,'2025-10-10',950),
+(115,2,'2025-11-20',900);
+
+SELECT CustomerID, CustomerName, Country, MonthlyCharges
+FROM Customers
+WHERE ChurnStatus = 'Churned';
+
+SELECT ChurnStatus, COUNT(*) AS CustomerCount
+FROM Customers
+GROUP BY ChurnStatus;
+
+SELECT Country, COUNT(*) AS TotalCustomers
+FROM Customers
+GROUP BY Country
+ORDER BY TotalCustomers DESC;
+
+SELECT C.CustomerID, C.CustomerName, SUM(T.Amount) AS TotalRevenue
+FROM Customers C
+INNER JOIN Transactions T ON C.CustomerID = T.CustomerID
+GROUP BY C.CustomerID, C.CustomerName
+ORDER BY TotalRevenue DESC;
+
+SELECT C.CustomerID, C.CustomerName, SUM(T.Amount) AS TotalRevenue
+FROM Customers C
+INNER JOIN Transactions T ON C.CustomerID = T.CustomerID
+GROUP BY C.CustomerID, C.CustomerName
+HAVING SUM(T.Amount) > 2500;
+
+SELECT AVG(MonthlyCharges) AS AverageMonthlyCharges
+FROM Customers
+WHERE ChurnStatus = 'Churned';
+
+SELECT ContractType, COUNT(*) AS ChurnedCustomers
+FROM Customers
+WHERE ChurnStatus = 'Churned'
+GROUP BY ContractType;
+
+SELECT TOP 3 C.CustomerID, C.CustomerName, SUM(T.Amount) AS TotalRevenue
+FROM Customers C
+INNER JOIN Transactions T ON C.CustomerID = T.CustomerID
+GROUP BY C.CustomerID, C.CustomerName
+ORDER BY TotalRevenue DESC;
+
+SELECT C.CustomerID, C.CustomerName
+FROM Customers C
+LEFT JOIN Transactions T ON C.CustomerID = T.CustomerID
+WHERE T.TransactionID IS NULL;
+
+SELECT
+    COUNT(*) AS TotalCustomers,
+    SUM(CASE WHEN ChurnStatus = 'Churned' THEN 1 ELSE 0 END) AS ChurnedCustomers,
+    CAST(
+        100.0 * SUM(CASE WHEN ChurnStatus = 'Churned' THEN 1 ELSE 0 END)
+        / NULLIF(COUNT(*), 0) AS DECIMAL(5,2)
+    ) AS ChurnRatePercent
+FROM Customers;
+
+
+
+Find all churned customers.
+
+
+
+Count customers by churn status.
+
+
+
+Rank countries by customer count.
+
+
+
+Calculate total revenue per customer.
+
+
+
+Find customers generating more than 2,500 in revenue.
+
+
+
+Calculate average monthly charges for churned customers.
+
+
+
+Count churned customers by contract type.
+
+
+
+Find the top three customers by revenue.
+
+
+
+Identify customers without transactions.
+
+
+
+Calculate the overall customer churn rate.
